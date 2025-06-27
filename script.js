@@ -141,7 +141,7 @@ function saveProgress() {
 }
 
 // Show popup message and prevent tapping during display
-function showPopup(text, ms = 5000) {
+function showPopup(text, ms = 3000) {
   if (isPopupVisible) return;
   isPopupVisible = true;
 
@@ -185,7 +185,7 @@ jar.addEventListener('click', () => {
 
   updateJarFill();
   saveProgress();
-  showPopup(selected, 7000);
+  showPopup(selected, 4000);
   triggerBurst();
 });
 
