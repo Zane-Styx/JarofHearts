@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Digital Jar of Hearts</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <h1 class="title">💖 Jar of Hearts 💖</h1>
+
+  <h2 id="progressText" class="progress-text">0% Filled</h2>
+  <div class="jar-container" id="jar">
+    <div class="jar-fill" id="jarFill"></div>
+    <div class="jar-glow"></div>
+    <p class="jar-text">Tap Me</p>
+  </div>
+  <button class="reset-btn" onclick="resetJar()">Reset Jar</button>
+  <div class="message-popup" id="messagePopup">
+    <p id="messageText"></p>
+  </div>
+
+  <canvas id="burstCanvas"></canvas>
+
+  <script src="script.js"></script>
+</body>
+</html>
