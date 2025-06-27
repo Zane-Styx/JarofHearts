@@ -162,7 +162,7 @@ jar.addEventListener('click', () => {
 
     messageText.textContent = "The jar has been refilled 💫";
     messagePopup.classList.add('show');
-    setTimeout(() => messagePopup.classList.remove('show'), 2500);
+    setTimeout(() => messagePopup.classList.remove('show'), 6000);
     return;
   }
 
