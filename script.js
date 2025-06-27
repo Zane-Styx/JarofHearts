@@ -175,7 +175,7 @@ jar.addEventListener('click', () => {
   messagePopup.classList.add('show');
   setTimeout(() => {
     messagePopup.classList.remove('show');
-  }, 3000);
+  }, 5000);
 
   updateJarFill();
   saveProgress();
