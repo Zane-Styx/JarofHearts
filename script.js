@@ -102,15 +102,18 @@ const messages = [
 ];
 
 let usedMessages = [];
+let isPopupVisible = false;
+let popupHideID;
 
 const jar = document.getElementById('jar');
 const jarFill = document.getElementById('jarFill');
 const messagePopup = document.getElementById('messagePopup');
 const messageText = document.getElementById('messageText');
+const progressText = document.getElementById('progressText');
 const canvas = document.getElementById('burstCanvas');
 const ctx = canvas.getContext('2d');
 
-// 🧠 Load saved progress
+// Load saved progress
 const saved = localStorage.getItem('jarProgress');
 if (saved) {
   const data = JSON.parse(saved);
@@ -130,8 +133,6 @@ function updateJarFill() {
   const filled = usedMessages.length;
   const percent = Math.round((filled / total) * 100);
   jarFill.style.height = `${percent}%`;
-
-  const progressText = document.getElementById('progressText');
   progressText.textContent = `${percent}% filled`;
 }
 
@@ -139,51 +140,56 @@ function saveProgress() {
   localStorage.setItem('jarProgress', JSON.stringify({ usedMessages }));
 }
 
-// 💌 Click jar to draw message
+// Show popup message and prevent tapping during display
+function showPopup(text, ms = 5000) {
+  if (isPopupVisible) return;
+  isPopupVisible = true;
+
+  messageText.textContent = text;
+  messagePopup.classList.add('show');
+
+  clearTimeout(popupHideID);
+  popupHideID = setTimeout(() => {
+    messagePopup.classList.remove('show');
+    isPopupVisible = false;
+  }, ms);
+}
+
+// Tap popup to dismiss
+messagePopup.addEventListener('click', () => {
+  clearTimeout(popupHideID);
+  messagePopup.classList.remove('show');
+  isPopupVisible = false;
+});
+
+// Handle jar click
 jar.addEventListener('click', () => {
+  if (isPopupVisible) return;
+
   if (messages.length === 0 && usedMessages.length === 0) return;
 
   if (messages.length === 0) {
-    // Reset the jar
+    // Reset jar
     messages.push(...usedMessages);
     usedMessages = [];
     jarFill.style.height = '0%';
     localStorage.removeItem('jarProgress');
+    updateJarFill();
     showPopup("The jar has been refilled 💫", 3000);
     return;
   }
 
-  // Draw a random message
   const i = Math.floor(Math.random() * messages.length);
   const selected = messages.splice(i, 1)[0];
   usedMessages.push(selected);
 
   updateJarFill();
   saveProgress();
-  showPopup(selected, 7000); // ⏳ Stay longer
+  showPopup(selected, 7000);
   triggerBurst();
 });
 
-/* 💬 Popup Message Handling */
-let popupHideID;
-
-function showPopup(text, ms = 5000) {
-  messageText.textContent = text;
-  messagePopup.classList.add('show');
-
-  clearTimeout(popupHideID); // Cancel any previous timer
-  popupHideID = setTimeout(() => {
-    messagePopup.classList.remove('show');
-  }, ms);
-}
-
-// Tap popup to dismiss manually
-messagePopup.addEventListener('click', () => {
-  clearTimeout(popupHideID);
-  messagePopup.classList.remove('show');
-});
-
-/* 🎉 Heart Burst Animation */
+// Confetti/heart burst animation
 function triggerBurst() {
   const particles = [];
   const emojis = ['💖', '💘', '💗', '💕', '❤️'];
@@ -222,7 +228,7 @@ function triggerBurst() {
   animate();
 }
 
-// 🎨 Handle canvas size
+// Set up canvas
 function resizeCanvas() {
   canvas.width = window.innerWidth;
   canvas.height = window.innerHeight;
@@ -230,7 +236,7 @@ function resizeCanvas() {
 resizeCanvas();
 window.addEventListener('resize', resizeCanvas);
 
-// 🛠️ Optional manual reset (if you add a reset button in HTML)
+// Optional manual reset if using a button
 window.resetJar = function () {
   messages.push(...usedMessages);
   usedMessages = [];
