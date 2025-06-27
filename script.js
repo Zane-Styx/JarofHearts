@@ -100,6 +100,7 @@ const messages = [
   "You're the one who makes everything better 🧸",
   "You're the most beautiful chapter in my life 💝"
 ];
+
 let usedMessages = [];
 
 const jar = document.getElementById('jar');
@@ -109,20 +110,13 @@ const messageText = document.getElementById('messageText');
 const canvas = document.getElementById('burstCanvas');
 const ctx = canvas.getContext('2d');
 
-function resizeCanvas() {
-  canvas.width = window.innerWidth;
-  canvas.height = window.innerHeight;
-}
-resizeCanvas();
-window.addEventListener('resize', resizeCanvas);
-
-// 🧠 Load progress
+// 🧠 Load saved progress
 const saved = localStorage.getItem('jarProgress');
 if (saved) {
   const data = JSON.parse(saved);
   usedMessages = data.usedMessages || [];
 
-  // Remove used from available pool
+  // Remove used messages from the available pool
   for (const msg of usedMessages) {
     const i = messages.indexOf(msg);
     if (i !== -1) messages.splice(i, 1);
@@ -135,54 +129,61 @@ function updateJarFill() {
   const total = messages.length + usedMessages.length;
   const filled = usedMessages.length;
   const percent = Math.round((filled / total) * 100);
-
   jarFill.style.height = `${percent}%`;
 
   const progressText = document.getElementById('progressText');
   progressText.textContent = `${percent}% filled`;
 }
 
-
 function saveProgress() {
-  localStorage.setItem(
-    'jarProgress',
-    JSON.stringify({ usedMessages })
-  );
+  localStorage.setItem('jarProgress', JSON.stringify({ usedMessages }));
 }
 
+// 💌 Click jar to draw message
 jar.addEventListener('click', () => {
   if (messages.length === 0 && usedMessages.length === 0) return;
 
   if (messages.length === 0) {
-    // Reset everything
+    // Reset the jar
     messages.push(...usedMessages);
     usedMessages = [];
     jarFill.style.height = '0%';
     localStorage.removeItem('jarProgress');
-
-    messageText.textContent = "The jar has been refilled 💫";
-    messagePopup.classList.add('show');
-    setTimeout(() => messagePopup.classList.remove('show'), 6000);
+    showPopup("The jar has been refilled 💫", 3000);
     return;
   }
 
-  // Draw random message
+  // Draw a random message
   const i = Math.floor(Math.random() * messages.length);
   const selected = messages.splice(i, 1)[0];
   usedMessages.push(selected);
 
-  messageText.textContent = selected;
-  messagePopup.classList.add('show');
-  setTimeout(() => {
-    messagePopup.classList.remove('show');
-  }, 5000);
-
   updateJarFill();
   saveProgress();
+  showPopup(selected, 7000); // ⏳ Stay longer
   triggerBurst();
 });
 
-// 💥 Heart burst animation
+/* 💬 Popup Message Handling */
+let popupHideID;
+
+function showPopup(text, ms = 5000) {
+  messageText.textContent = text;
+  messagePopup.classList.add('show');
+
+  clearTimeout(popupHideID); // Cancel any previous timer
+  popupHideID = setTimeout(() => {
+    messagePopup.classList.remove('show');
+  }, ms);
+}
+
+// Tap popup to dismiss manually
+messagePopup.addEventListener('click', () => {
+  clearTimeout(popupHideID);
+  messagePopup.classList.remove('show');
+});
+
+/* 🎉 Heart Burst Animation */
 function triggerBurst() {
   const particles = [];
   const emojis = ['💖', '💘', '💗', '💕', '❤️'];
@@ -221,13 +222,20 @@ function triggerBurst() {
   animate();
 }
 
-// Optional: Manual reset button support
+// 🎨 Handle canvas size
+function resizeCanvas() {
+  canvas.width = window.innerWidth;
+  canvas.height = window.innerHeight;
+}
+resizeCanvas();
+window.addEventListener('resize', resizeCanvas);
+
+// 🛠️ Optional manual reset (if you add a reset button in HTML)
 window.resetJar = function () {
   messages.push(...usedMessages);
   usedMessages = [];
   localStorage.removeItem('jarProgress');
   jarFill.style.height = '0%';
-  messageText.textContent = "Manually reset 💡";
-  messagePopup.classList.add('show');
-  setTimeout(() => messagePopup.classList.remove('show'), 2500);
+  updateJarFill();
+  showPopup("Manually reset 💡", 3000);
 };
